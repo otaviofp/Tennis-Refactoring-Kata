@@ -5,6 +5,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace Tennis
 {
+    using System;
+
     class Player
     {
         private string name;
@@ -22,14 +24,14 @@ namespace Tennis
     {
         public Player Player1 { get; set; }
 
-        public Player Player2 { get; set;  }
+        public Player Player2 { get; set; }
 
         public string GetScore()
         {
             string score = string.Empty;
-            if (Equals(Player1.Points, Player2.Points))
+            if (Equals(this.Player1.Points, this.Player2.Points))
             {
-                switch (Player1.Points.Point)
+                switch (this.Player1.Points.Point)
                 {
                     case 0:
                         score = "Love-All";
@@ -45,9 +47,9 @@ namespace Tennis
                         break;
                 }
             }
-            else if (Player1.Points.Point >= 4 || Player2.Points.Point >= 4)
+            else if (this.Player1.Points.Point >= 4 || this.Player2.Points.Point >= 4)
             {
-                var minusResult = Player1.Points.Point - Player2.Points.Point;
+                var minusResult = this.Player1.Points.Point - this.Player2.Points.Point;
                 if (minusResult == 1) score = "Advantage player1";
                 else if (minusResult == -1) score = "Advantage player2";
                 else if (minusResult >= 2) score = "Win for player1";
@@ -55,32 +57,7 @@ namespace Tennis
             }
             else
             {
-                for (var i = 1; i < 3; i++)
-                {
-                    int tempScore;
-                    if (i == 1) tempScore = Player1.Points.Point;
-                    else
-                    {
-                        score += "-";
-                        tempScore = Player2.Points.Point;
-                    }
-
-                    switch (tempScore)
-                    {
-                        case 0:
-                            score += "Love";
-                            break;
-                        case 1:
-                            score += "Fifteen";
-                            break;
-                        case 2:
-                            score += "Thirty";
-                            break;
-                        case 3:
-                            score += "Forty";
-                            break;
-                    }
-                }
+                score = string.Format("{0}-{1}", this.Player1.Points.GetScoreString(), this.Player2.Points.GetScoreString());
             }
 
             return score;
@@ -109,6 +86,30 @@ namespace Tennis
             return this.Point;
         }
 
+        public string GetScoreString()
+        {
+            string scoreString;
+            switch (this.Point)
+            {
+                case 0:
+                    scoreString = "Love";
+                    break;
+                case 1:
+                    scoreString = "Fifteen";
+                    break;
+                case 2:
+                    scoreString = "Thirty";
+                    break;
+                case 3:
+                    scoreString = "Forty";
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return scoreString;
+        }
+
         public void Increment()
         {
             ++this.Point;
@@ -131,9 +132,7 @@ namespace Tennis
 
         public string GetScore()
         {
-            var score1 = this.score;
-
-            return score1.GetScore();
+            return this.score.GetScore();
         }
 
         public void WonPoint(string playerName)
