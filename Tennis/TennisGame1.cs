@@ -9,34 +9,27 @@ namespace Tennis
     {
         private string name;
 
-        public int Score { get; set; }
-
         public Player(string name)
         {
             this.name = name;
-            this.Score = 0;
+            this.Points = new PointCount();
         }
+
+        public PointCount Points { get; set; }
     }
 
-    class TennisGame1 : ITennisGame
+    class Score
     {
-        private Player player1;
+        public Player Player1 { get; set; }
 
-        private Player player2;
-
-        public TennisGame1(string player1Name, string player2Name)
-        {
-            this.player1 = new Player(player1Name);
-            this.player2 = new Player(player2Name);
-        }
+        public Player Player2 { get; set;  }
 
         public string GetScore()
         {
             string score = string.Empty;
-            var tempScore = 0;
-            if (this.player1.Score == this.player2.Score)
+            if (Equals(Player1.Points, Player2.Points))
             {
-                switch (this.player1.Score)
+                switch (Player1.Points.Point)
                 {
                     case 0:
                         score = "Love-All";
@@ -52,9 +45,9 @@ namespace Tennis
                         break;
                 }
             }
-            else if (this.player1.Score >= 4 || this.player2.Score >= 4)
+            else if (Player1.Points.Point >= 4 || Player2.Points.Point >= 4)
             {
-                var minusResult = this.player1.Score - this.player2.Score;
+                var minusResult = Player1.Points.Point - Player2.Points.Point;
                 if (minusResult == 1) score = "Advantage player1";
                 else if (minusResult == -1) score = "Advantage player2";
                 else if (minusResult >= 2) score = "Win for player1";
@@ -64,11 +57,12 @@ namespace Tennis
             {
                 for (var i = 1; i < 3; i++)
                 {
-                    if (i == 1) tempScore = this.player1.Score;
+                    int tempScore;
+                    if (i == 1) tempScore = Player1.Points.Point;
                     else
                     {
                         score += "-";
-                        tempScore = this.player2.Score;
+                        tempScore = Player2.Points.Point;
                     }
 
                     switch (tempScore)
@@ -91,11 +85,61 @@ namespace Tennis
 
             return score;
         }
+    }
+
+    class PointCount
+    {
+        public PointCount()
+        {
+            this.Point = 0;
+        }
+
+        public int Point { get; private set; }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return this.Equals((PointCount)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Point;
+        }
+
+        public void Increment()
+        {
+            ++this.Point;
+        }
+
+        protected bool Equals(PointCount other)
+        {
+            return this.Point == other.Point;
+        }
+    }
+
+    class TennisGame1 : ITennisGame
+    {
+        private readonly Score score;
+
+        public TennisGame1(string player1Name, string player2Name)
+        {
+            this.score = new Score() { Player1 = new Player(player1Name), Player2 = new Player(player2Name) };
+        }
+
+        public string GetScore()
+        {
+            var score1 = this.score;
+
+            return score1.GetScore();
+        }
 
         public void WonPoint(string playerName)
         {
-            if (playerName == "player1") this.player1.Score += 1;
-            else this.player2.Score += 1;
+            if (playerName == "player1") this.score.Player1.Points.Increment();
+            else this.score.Player2.Points.Increment();
         }
     }
 }
