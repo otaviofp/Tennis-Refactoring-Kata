@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace Tennis
 {
-    using System;
+    using System.Diagnostics;
 
     class Player
     {
@@ -31,20 +31,13 @@ namespace Tennis
             string score = string.Empty;
             if (Equals(this.Player1.Points, this.Player2.Points))
             {
-                switch (this.Player1.Points.Point)
+                if (this.Player1.Points.Point >= 3)
                 {
-                    case 0:
-                        score = "Love-All";
-                        break;
-                    case 1:
-                        score = "Fifteen-All";
-                        break;
-                    case 2:
-                        score = "Thirty-All";
-                        break;
-                    default:
-                        score = "Deuce";
-                        break;
+                    score = "Deuce";
+                }
+                else
+                {
+                    score = string.Format("{0}-All", this.Player1.Points.GetTieString());
                 }
             }
             else if (this.Player1.Points.Point >= 4 || this.Player2.Points.Point >= 4)
@@ -88,6 +81,26 @@ namespace Tennis
 
         public string GetScoreString()
         {
+            return this.ConvertScoreString(false);
+        }
+
+        public string GetTieString()
+        {
+            return this.ConvertScoreString(true);
+        }
+
+        public void Increment()
+        {
+            ++this.Point;
+        }
+
+        protected bool Equals(PointCount other)
+        {
+            return this.Point == other.Point;
+        }
+
+        private string ConvertScoreString(bool isTie)
+        {
             string scoreString;
             switch (this.Point)
             {
@@ -101,23 +114,23 @@ namespace Tennis
                     scoreString = "Thirty";
                     break;
                 case 3:
-                    scoreString = "Forty";
+                    if (isTie)
+                    {
+                        scoreString = "Deuce";
+                    }
+                    else
+                    {
+                        scoreString = "Forty";
+                    }
+
                     break;
                 default:
-                    throw new NotSupportedException();
+                    Debug.Assert(isTie, "should only be here in case of a tie");
+                    scoreString = "Deuce";
+                    break;
             }
 
             return scoreString;
-        }
-
-        public void Increment()
-        {
-            ++this.Point;
-        }
-
-        protected bool Equals(PointCount other)
-        {
-            return this.Point == other.Point;
         }
     }
 
